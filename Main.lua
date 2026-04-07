@@ -171,7 +171,6 @@ end
 
 -- ===== สร้างฟีเจอร์อัตโนมัติ =====
 local Lib = UILib:Init()
-
 local MainTab = Lib:CreateTab("Main")
 MainTab:Toggle("Kill Aura", false, function(v)
     if v then
