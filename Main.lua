@@ -1,61 +1,42 @@
--- UILib.lua
 local UILib = {}
 
-function UILib:CreateWindow(title)
-    local selfWindow = {}
+function UILib:Init()
+    local self = {}
 
-    -- ScreenGui
     local PlayerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-    local ScreenGui = Instance.new("ScreenGui")
-    ScreenGui.Name = "MyUI"
-    ScreenGui.Parent = PlayerGui
-    selfWindow.ScreenGui = ScreenGui
 
-    -- Main Frame
-    local MainFrame = Instance.new("Frame")
-    MainFrame.Size = UDim2.new(0,500,0,300)
-    MainFrame.Position = UDim2.new(0.5,-250,0.5,-150)
-    MainFrame.BackgroundColor3 = Color3.fromRGB(30,30,30)
-    MainFrame.Active = true
-    MainFrame.Draggable = true
-    MainFrame.Parent = ScreenGui
-    selfWindow.MainFrame = MainFrame
+    local ScreenGui = Instance.new("ScreenGui", PlayerGui)
+    local Main = Instance.new("Frame", ScreenGui)
+    Main.Size = UDim2.new(0,500,0,300)
+    Main.Position = UDim2.new(0.5,-250,0.5,-150)
+    Main.BackgroundColor3 = Color3.fromRGB(30,30,30)
 
-    -- Sidebar
-    local Sidebar = Instance.new("Frame", MainFrame)
+    local Sidebar = Instance.new("Frame", Main)
     Sidebar.Size = UDim2.new(0,120,1,0)
     Sidebar.BackgroundColor3 = Color3.fromRGB(20,20,20)
-    selfWindow.Sidebar = Sidebar
 
-    -- Content
-    local Content = Instance.new("Frame", MainFrame)
+    local Content = Instance.new("Frame", Main)
     Content.Size = UDim2.new(1,-120,1,0)
     Content.Position = UDim2.new(0,120,0,0)
     Content.BackgroundColor3 = Color3.fromRGB(40,40,40)
-    selfWindow.Content = Content
 
-    -- ToggleKey default
-    selfWindow.ToggleKey = Enum.KeyCode.RightShift
+    self.Sidebar = Sidebar
+    self.Content = Content
 
-    -- Create Tab function
-    function selfWindow:CreateTab(name)
-        local Tab = {}
+    -- Section builder
+    function self:CreateSection(name, callback)
+        local TabBtn = Instance.new("TextButton", Sidebar)
+        TabBtn.Size = UDim2.new(1,0,0,40)
+        TabBtn.Text = name
 
-        -- Button sidebar
-        local Button = Instance.new("TextButton")
-        Button.Parent = Sidebar
-        Button.Size = UDim2.new(1,0,0,40)
-        Button.Text = name
-
-        -- Page
-        local Page = Instance.new("Frame")
-        Page.Parent = Content
+        local Page = Instance.new("Frame", Content)
         Page.Size = UDim2.new(1,0,1,0)
         Page.Visible = false
+
         local Layout = Instance.new("UIListLayout", Page)
         Layout.Padding = UDim.new(0,5)
 
-        Button.MouseButton1Click:Connect(function()
+        TabBtn.MouseButton1Click:Connect(function()
             for _,v in pairs(Content:GetChildren()) do
                 if v:IsA("Frame") then
                     v.Visible = false
@@ -64,29 +45,22 @@ function UILib:CreateWindow(title)
             Page.Visible = true
         end)
 
-        -- Components
-        function Tab:Label(text)
-            local l = Instance.new("TextLabel")
-            l.Parent = Page
-            l.Size = UDim2.new(1,-10,0,30)
-            l.Text = text
-            l.BackgroundTransparency = 1
-        end
+        -- component API
+        local sec = {}
 
-        function Tab:Button(text, callback)
-            local b = Instance.new("TextButton")
-            b.Parent = Page
+        function sec:Button(text, callback)
+            local b = Instance.new("TextButton", Page)
             b.Size = UDim2.new(1,-10,0,40)
             b.Text = text
             b.MouseButton1Click:Connect(callback)
         end
 
-        function Tab:Toggle(text, default, callback)
+        function sec:Toggle(text, default, callback)
             local state = default
-            local t = Instance.new("TextButton")
-            t.Parent = Page
+            local t = Instance.new("TextButton", Page)
             t.Size = UDim2.new(1,-10,0,40)
             t.Text = text.." : "..tostring(state)
+
             t.MouseButton1Click:Connect(function()
                 state = not state
                 t.Text = text.." : "..tostring(state)
@@ -94,34 +68,17 @@ function UILib:CreateWindow(title)
             end)
         end
 
-        function Tab:Keybind(text, defaultKey, callback)
-            local key = defaultKey
-            local btn = Instance.new("TextButton")
-            btn.Parent = Page
-            btn.Size = UDim2.new(1,-10,0,40)
-            btn.Text = text.." : "..key.Name
-            local WaitingKey = false
-
-            btn.MouseButton1Click:Connect(function()
-                WaitingKey = true
-                btn.Text = text.." : Press key..."
-            end)
-
-            game:GetService("UserInputService").InputBegan:Connect(function(input, gp)
-                if gp then return end
-                if WaitingKey then
-                    WaitingKey = false
-                    key = input.KeyCode
-                    btn.Text = text.." : "..key.Name
-                    callback(key)
-                end
-            end)
+        function sec:Label(text)
+            local l = Instance.new("TextLabel", Page)
+            l.Size = UDim2.new(1,-10,0,30)
+            l.Text = text
+            l.BackgroundTransparency = 1
         end
 
-        return Tab
+        callback(sec)
     end
 
-    return selfWindow
+    return self
 end
 
 return UILib
