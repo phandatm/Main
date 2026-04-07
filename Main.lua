@@ -18,7 +18,6 @@ function UILib:Init()
     local self = setmetatable({}, UILib)
 
     self.ToggleKey = Enum.KeyCode.RightShift
-    self.Tabs = {}
     self.Pages = {}
 
     local ScreenGui = Create("ScreenGui", {
@@ -57,6 +56,7 @@ function UILib:Init()
         Size = UDim2.new(0,120,1,0),
         BackgroundColor3 = Color3.fromRGB(20,20,20)
     })
+    local SidebarLayout = Create("UIListLayout", {Parent = Sidebar, SortOrder = Enum.SortOrder.LayoutOrder})
 
     local Content = Create("Frame", {
         Parent = Main,
@@ -136,15 +136,13 @@ function UILib:CreateTab(name)
 
     function Tab:Toggle(text, default, callback)
         local state = default
-
         local btn = Create("TextButton", {
             Parent = Page,
-            Size = UDim2.new(1,-50,0,40),
+            Size = UDim2.new(1,-10,0,40),
             Text = text.." : "..tostring(state),
             BackgroundColor3 = Color3.fromRGB(70,70,70),
             TextColor3 = Color3.new(1,1,1)
         })
-
         btn.MouseButton1Click:Connect(function()
             state = not state
             btn.Text = text.." : "..tostring(state)
@@ -155,23 +153,19 @@ function UILib:CreateTab(name)
     function Tab:Keybind(text, default, callback)
         local key = default
         local waiting = false
-
         local btn = Create("TextButton", {
             Parent = Page,
-            Size = UDim2.new(1,-50,0,40),
+            Size = UDim2.new(1,-10,0,40),
             Text = text.." : "..key.Name,
             BackgroundColor3 = Color3.fromRGB(70,70,70),
             TextColor3 = Color3.new(1,1,1)
         })
-
         btn.MouseButton1Click:Connect(function()
             btn.Text = "Press key..."
             waiting = true
         end)
-
         UIS.InputBegan:Connect(function(input,gp)
             if gp then return end
-
             if waiting then
                 waiting = false
                 key = input.KeyCode
