@@ -5,7 +5,6 @@ local UIS = game:GetService("UserInputService")
 local player = game.Players.LocalPlayer
 local PlayerGui = player:WaitForChild("PlayerGui")
 
--- Create function
 local function Create(class, props)
     local obj = Instance.new(class)
     for i,v in pairs(props) do
@@ -14,14 +13,12 @@ local function Create(class, props)
     return obj
 end
 
--- Create Window
 function UILib:CreateWindow(title)
     local self = setmetatable({}, UILib)
 
     self.ToggleKey = Enum.KeyCode.RightShift
     self.Tabs = {}
 
-    -- GUI
     local ScreenGui = Create("ScreenGui", {
         Name = "UILibrary",
         Parent = PlayerGui
@@ -36,21 +33,21 @@ function UILib:CreateWindow(title)
         Draggable = true
     })
 
-    -- Close
-    Create("TextButton", {
+    -- ✅ FIX ปุ่ม X
+    local Close = Create("TextButton", {
         Parent = Main,
         Size = UDim2.new(0,30,0,30),
         Position = UDim2.new(1,-35,0,5),
         Text = "X",
         BackgroundColor3 = Color3.fromRGB(170,0,0),
         TextColor3 = Color3.new(1,1,1),
-        ZIndex = 10,
-        MouseButton1Click = function()
-            ScreenGui:Destroy()
-        end
+        ZIndex = 10
     })
 
-    -- Sidebar
+    Close.MouseButton1Click:Connect(function()
+        ScreenGui:Destroy()
+    end)
+
     local Sidebar = Create("Frame", {
         Parent = Main,
         Size = UDim2.new(0,120,1,0),
@@ -68,7 +65,6 @@ function UILib:CreateWindow(title)
     self.Sidebar = Sidebar
     self.Content = Content
 
-    -- Toggle key
     UIS.InputBegan:Connect(function(input,gp)
         if gp then return end
         if input.KeyCode == self.ToggleKey then
@@ -79,7 +75,6 @@ function UILib:CreateWindow(title)
     return self
 end
 
--- Create Tab
 function UILib:CreateTab(name)
     local Tab = {}
 
@@ -97,7 +92,7 @@ function UILib:CreateTab(name)
         Visible = false
     })
 
-    local Layout = Create("UIListLayout", {
+    Create("UIListLayout", {
         Parent = Page,
         Padding = UDim.new(0,5)
     })
@@ -109,16 +104,20 @@ function UILib:CreateTab(name)
         Page.Visible = true
     end)
 
-    -- Components
+    -- ✅ FIX: เปิด Tab แรกอัตโนมัติ
+    if #self.Content:GetChildren() == 1 then
+        Page.Visible = true
+    end
+
     function Tab:Button(text, callback)
-        Create("TextButton", {
+        local b = Create("TextButton", {
             Parent = Page,
             Size = UDim2.new(1,-10,0,40),
             Text = text,
             BackgroundColor3 = Color3.fromRGB(70,70,70),
-            TextColor3 = Color3.new(1,1,1),
-            MouseButton1Click = callback
+            TextColor3 = Color3.new(1,1,1)
         })
+        b.MouseButton1Click:Connect(callback)
     end
 
     function Tab:Toggle(text, default, callback)
