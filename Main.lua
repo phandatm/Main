@@ -196,29 +196,30 @@ end
 
 -- ===== AUTO BUILD =====
 local Lib = UILib:Init()
-local MainTab = Lib:CreateTab("Main")
+
+local FunctionTab = Lib:CreateTab("ฟังก์ชั่น") -- เปลี่ยนชื่อ Main → ฟังก์ชั่น
 local SettingTab = Lib:CreateTab("Setting")
 
--- 👉 เปิด Main อัตโนมัติ
+-- 👉 เปิด Tab ฟังก์ชั่น อัตโนมัติ
 for _,v in pairs(Lib.Pages) do
     v.Visible = false
 end
-MainTab.Page.Visible = true
+FunctionTab.Page.Visible = true
 
--- ===== MAIN =====
-MainTab:Toggle("Kill Aura", false, function(v)
+-- ===== ฟังก์ชั่น =====
+FunctionTab:Toggle("Kill Aura", false, function(v)
     if v and _G.KillAuraFunc then
         _G.KillAuraFunc()
     end
 end)
 
-MainTab:Toggle("TP to NPC", false, function(v)
+FunctionTab:Toggle("TP to NPC", false, function(v)
     if v and _G.TPtoNPCFunc then
         _G.TPtoNPCFunc()
     end
 end)
 
--- ===== SETTING =====
+-- ===== SETTINGS =====
 SettingTab:Keybind("Toggle UI Key", Enum.KeyCode.RightShift, function(k)
     Lib.ToggleKey = k
 end)
