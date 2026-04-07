@@ -140,7 +140,6 @@ function UILib:CreateTab(name)
         local btn = Create("TextButton", {
             Parent = Page,
             Size = UDim2.new(1,-50,0,40),
-			Position = UDim2.new(0,5,0,0),
             Text = text.." : "..tostring(state),
             BackgroundColor3 = Color3.fromRGB(70,70,70),
             TextColor3 = Color3.new(1,1,1)
@@ -159,7 +158,7 @@ function UILib:CreateTab(name)
 
         local btn = Create("TextButton", {
             Parent = Page,
-            Size = UDim2.new(1,-10,0,40),
+            Size = UDim2.new(1,-50,0,40),
             Text = text.." : "..key.Name,
             BackgroundColor3 = Color3.fromRGB(70,70,70),
             TextColor3 = Color3.new(1,1,1)
