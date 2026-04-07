@@ -15,9 +15,8 @@ end
 
 -- ===== Create Window =====
 function UILib:Init()
-    if self.ScreenGui then return self end -- สร้างแค่ครั้งเดียว
-
     local self = setmetatable({}, UILib)
+
     self.ToggleKey = Enum.KeyCode.RightShift
     self.Tabs = {}
 
@@ -36,7 +35,7 @@ function UILib:Init()
         Draggable = true
     })
 
-    -- Close X
+    -- ❌ ปุ่ม X
     local Close = Create("TextButton", {
         Parent = Main,
         Size = UDim2.new(0,30,0,30),
@@ -46,17 +45,19 @@ function UILib:Init()
         TextColor3 = Color3.new(1,1,1),
         ZIndex = 50
     })
+
     Close.MouseButton1Click:Connect(function()
         ScreenGui:Destroy()
-        self = nil
     end)
 
+    -- Sidebar
     local Sidebar = Create("Frame", {
         Parent = Main,
         Size = UDim2.new(0,120,1,0),
         BackgroundColor3 = Color3.fromRGB(20,20,20)
     })
 
+    -- Content
     local Content = Create("Frame", {
         Parent = Main,
         Size = UDim2.new(1,-120,1,0),
@@ -67,6 +68,7 @@ function UILib:Init()
     self.ScreenGui = ScreenGui
     self.Sidebar = Sidebar
     self.Content = Content
+    self.Pages = {}
 
     -- Toggle UI
     UIS.InputBegan:Connect(function(input,gp)
@@ -83,13 +85,16 @@ end
 function UILib:CreateTab(name)
     local Tab = {}
 
+    -- ปุ่มซ้าย
     local Button = Create("TextButton", {
         Parent = self.Sidebar,
         Size = UDim2.new(1,0,0,40),
         Text = name,
-        BackgroundColor3 = Color3.fromRGB(50,50,50)
+        BackgroundColor3 = Color3.fromRGB(50,50,50),
+        TextColor3 = Color3.new(1,1,1)
     })
 
+    -- หน้า
     local Page = Create("Frame", {
         Parent = self.Content,
         Size = UDim2.new(1,0,1,0),
@@ -97,18 +102,33 @@ function UILib:CreateTab(name)
         Visible = false
     })
 
-    Create("UIListLayout", {Parent = Page, Padding = UDim.new(0,5)})
+    Create("UIListLayout", {
+        Parent = Page,
+        Padding = UDim.new(0,5)
+    })
 
+    table.insert(self.Pages, Page)
+
+    -- เปลี่ยนหน้า
     Button.MouseButton1Click:Connect(function()
-        for _,v in pairs(self.Content:GetChildren()) do
-            if v:IsA("Frame") then v.Visible = false end
+        for _,v in pairs(self.Pages) do
+            v.Visible = false
         end
         Page.Visible = true
     end)
 
-    -- เปิด Tab แรกอัตโนมัติ
-    if #self.Content:GetChildren() == 1 then
-        Page.Visible = true
+    Tab.Page = Page
+
+    -- ===== Components =====
+
+    function Tab:Label(text)
+        Create("TextLabel", {
+            Parent = Page,
+            Size = UDim2.new(1,-10,0,30),
+            Text = text,
+            BackgroundTransparency = 1,
+            TextColor3 = Color3.new(1,1,1)
+        })
     end
 
     function Tab:Button(text, callback)
@@ -124,6 +144,7 @@ function UILib:CreateTab(name)
 
     function Tab:Toggle(text, default, callback)
         local state = default
+
         local btn = Create("TextButton", {
             Parent = Page,
             Size = UDim2.new(1,-10,0,40),
@@ -131,6 +152,7 @@ function UILib:CreateTab(name)
             BackgroundColor3 = Color3.fromRGB(70,70,70),
             TextColor3 = Color3.new(1,1,1)
         })
+
         btn.MouseButton1Click:Connect(function()
             state = not state
             btn.Text = text.." : "..tostring(state)
@@ -141,6 +163,7 @@ function UILib:CreateTab(name)
     function Tab:Keybind(text, default, callback)
         local key = default
         local waiting = false
+
         local btn = Create("TextButton", {
             Parent = Page,
             Size = UDim2.new(1,-10,0,40),
@@ -148,6 +171,7 @@ function UILib:CreateTab(name)
             BackgroundColor3 = Color3.fromRGB(70,70,70),
             TextColor3 = Color3.new(1,1,1)
         })
+
         btn.MouseButton1Click:Connect(function()
             btn.Text = "Press key..."
             waiting = true
@@ -155,6 +179,7 @@ function UILib:CreateTab(name)
 
         UIS.InputBegan:Connect(function(input,gp)
             if gp then return end
+
             if waiting then
                 waiting = false
                 key = input.KeyCode
@@ -169,21 +194,31 @@ function UILib:CreateTab(name)
     return Tab
 end
 
--- ===== สร้างฟีเจอร์อัตโนมัติ =====
+-- ===== AUTO BUILD =====
 local Lib = UILib:Init()
 local MainTab = Lib:CreateTab("Main")
+local SettingTab = Lib:CreateTab("Setting")
+
+-- 👉 เปิด Main อัตโนมัติ
+for _,v in pairs(Lib.Pages) do
+    v.Visible = false
+end
+MainTab.Page.Visible = true
+
+-- ===== MAIN =====
 MainTab:Toggle("Kill Aura", false, function(v)
-    if v then
-        if _G.KillAuraFunc then _G.KillAuraFunc() end
-    end
-end)
-MainTab:Toggle("TP to NPC", false, function(v)
-    if v then
-        if _G.TPtoNPCFunc then _G.TPtoNPCFunc() end
+    if v and _G.KillAuraFunc then
+        _G.KillAuraFunc()
     end
 end)
 
-local SettingTab = Lib:CreateTab("Settings")
+MainTab:Toggle("TP to NPC", false, function(v)
+    if v and _G.TPtoNPCFunc then
+        _G.TPtoNPCFunc()
+    end
+end)
+
+-- ===== SETTING =====
 SettingTab:Keybind("Toggle UI Key", Enum.KeyCode.RightShift, function(k)
     Lib.ToggleKey = k
 end)
