@@ -19,6 +19,7 @@ function UILib:Init()
 
     self.ToggleKey = Enum.KeyCode.RightShift
     self.Tabs = {}
+    self.Pages = {}
 
     local ScreenGui = Create("ScreenGui", {
         Name = "UILibrary",
@@ -35,7 +36,7 @@ function UILib:Init()
         Draggable = true
     })
 
-    -- ❌ ปุ่ม X
+    -- ❌ ปุ่ม X ปิดถาวร
     local Close = Create("TextButton", {
         Parent = Main,
         Size = UDim2.new(0,30,0,30),
@@ -50,14 +51,13 @@ function UILib:Init()
         ScreenGui:Destroy()
     end)
 
-    -- Sidebar
+    -- Sidebar & Content
     local Sidebar = Create("Frame", {
         Parent = Main,
         Size = UDim2.new(0,120,1,0),
         BackgroundColor3 = Color3.fromRGB(20,20,20)
     })
 
-    -- Content
     local Content = Create("Frame", {
         Parent = Main,
         Size = UDim2.new(1,-120,1,0),
@@ -68,9 +68,8 @@ function UILib:Init()
     self.ScreenGui = ScreenGui
     self.Sidebar = Sidebar
     self.Content = Content
-    self.Pages = {}
 
-    -- Toggle UI
+    -- Toggle UI ด้วยปุ่ม
     UIS.InputBegan:Connect(function(input,gp)
         if gp then return end
         if input.KeyCode == self.ToggleKey then
@@ -85,7 +84,6 @@ end
 function UILib:CreateTab(name)
     local Tab = {}
 
-    -- ปุ่มซ้าย
     local Button = Create("TextButton", {
         Parent = self.Sidebar,
         Size = UDim2.new(1,0,0,40),
@@ -94,7 +92,6 @@ function UILib:CreateTab(name)
         TextColor3 = Color3.new(1,1,1)
     })
 
-    -- หน้า
     local Page = Create("Frame", {
         Parent = self.Content,
         Size = UDim2.new(1,0,1,0),
@@ -102,14 +99,10 @@ function UILib:CreateTab(name)
         Visible = false
     })
 
-    Create("UIListLayout", {
-        Parent = Page,
-        Padding = UDim.new(0,5)
-    })
+    Create("UIListLayout", {Parent = Page, Padding = UDim.new(0,5)})
 
     table.insert(self.Pages, Page)
 
-    -- เปลี่ยนหน้า
     Button.MouseButton1Click:Connect(function()
         for _,v in pairs(self.Pages) do
             v.Visible = false
@@ -119,8 +112,7 @@ function UILib:CreateTab(name)
 
     Tab.Page = Page
 
-    -- ===== Components =====
-
+    -- Components
     function Tab:Label(text)
         Create("TextLabel", {
             Parent = Page,
@@ -197,10 +189,10 @@ end
 -- ===== AUTO BUILD =====
 local Lib = UILib:Init()
 
-local FunctionTab = Lib:CreateTab("ฟังก์ชั่น") -- เปลี่ยนชื่อ Main → ฟังก์ชั่น
+local FunctionTab = Lib:CreateTab("ฟังก์ชั่น")
 local SettingTab = Lib:CreateTab("Setting")
 
--- 👉 เปิด Tab ฟังก์ชั่น อัตโนมัติ
+-- เปิด Tab ฟังก์ชั่น อัตโนมัติ
 for _,v in pairs(Lib.Pages) do
     v.Visible = false
 end
