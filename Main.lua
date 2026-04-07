@@ -194,14 +194,14 @@ FunctionTab.Page.Visible = true
 
 -- ===== ฟังก์ชั่น =====
 FunctionTab:Toggle("Kill Aura", false, function(v)
-    if v and _G.killAura then
-        _G.killAura()
+    if v and killAura then
+        killAura()
     end
 end)
 
 FunctionTab:Toggle("TP to NPC", false, function(v)
-    if v and _G.TPtoNPCFunc then
-        _G.TPtoNPCFunc()
+    if v and TPtoNPCFunc then
+        TPtoNPCFunc()
     end
 end)
 
