@@ -194,8 +194,8 @@ FunctionTab.Page.Visible = true
 
 -- ===== ฟังก์ชั่น =====
 FunctionTab:Toggle("Kill Aura", false, function(v)
-    if v and _G.KillAuraFunc then
-        _G.KillAuraFunc()
+    if v and _G.killAura then
+        _G.killAura()
     end
 end)
 
